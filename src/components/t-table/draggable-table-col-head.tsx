@@ -7,7 +7,6 @@ import type { CSSProperties } from 'react'
 
 import { Grip, ListFilter } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { TableHead } from '../ui/table'
 import Filter from './filter'
 const sortIconMap: Record<string, string> = {
   asc: ' 🔼',
@@ -22,7 +21,7 @@ const DraggableTableColHead = ({
     useSortable({
       id: header.id,
     })
-  const isSelectColumn = header.column.id === 'select'
+  const isFixedColumn = header.column.columnDef.meta?.isFixedColumn && true
   const style: CSSProperties = {
     opacity: isDragging ? 0.8 : 1,
     position: 'relative',
@@ -34,15 +33,14 @@ const DraggableTableColHead = ({
     background: isDragging ? 'var(--ring)' : 'unset',
   }
   return (
-    <TableHead
-      colSpan={header.colSpan}
+    <div
       ref={setNodeRef}
       style={style}
       className="p-2 inline-flex justify-center items-center"
     >
       {header.isPlaceholder ? null : (
         <>
-          {!isSelectColumn && (
+          {!isFixedColumn && (
             <button
               {...attributes}
               {...listeners}
@@ -62,7 +60,7 @@ const DraggableTableColHead = ({
             className="flex-1 truncate text-center relative"
           >
             {flexRender(header.column.columnDef.header, header.getContext())}
-            {!isSelectColumn && (
+            {!isFixedColumn && (
               <span>
                 {sortIconMap[header.column.getIsSorted() as string] ?? null}
               </span>
@@ -80,7 +78,7 @@ const DraggableTableColHead = ({
           ) : null}
         </>
       )}
-      {!isSelectColumn && (
+      {!isFixedColumn && (
         <div
           {...{
             onDoubleClick: () => header.column.resetSize(),
@@ -93,7 +91,7 @@ const DraggableTableColHead = ({
           }}
         />
       )}
-    </TableHead>
+    </div>
   )
 }
 

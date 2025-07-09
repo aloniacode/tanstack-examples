@@ -33,13 +33,13 @@ import { Checkbox } from '../ui/checkbox'
 import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Select, SelectContent, SelectItem } from '../ui/select'
-import { Table, TableHeader, TableRow } from '../ui/table'
 import defaultColumn from './default-column'
 import {
   DraggableTableBody,
   MemoriedDraggableTableBody,
 } from './draggable-table-body'
 import DraggableTableColHead from './draggable-table-col-head'
+import DraggableTableRowHandleCell from './draggable-table-row-handle-cell'
 import IndeterminateCheckbox from './indeterminate-checkbox'
 import useSkipper from './use-skipper'
 
@@ -47,6 +47,7 @@ declare module '@tanstack/react-table' {
   //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
     filterVariant?: 'text' | 'range' | 'select'
+    isFixedColumn?: boolean //if true, this column is not sortable or filterable
   }
   interface TableMeta<TData extends RowData> {
     updateData: (rowIndex: number, columnId: string, value: unknown) => void
@@ -60,6 +61,19 @@ export default function TTable() {
   const [rowSelection, setRowSelection] = useState({})
   const columns = useMemo<ColumnDef<Person, any>[]>(
     () => [
+      {
+        id: 'drag-handle',
+        header: '',
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <DraggableTableRowHandleCell rowId={row.id} />
+          </div>
+        ),
+        size: 60,
+        meta: {
+          isFixedColumn: true,
+        },
+      },
       {
         id: 'select',
         header: ({ table }) => (
@@ -83,6 +97,10 @@ export default function TTable() {
             />
           </div>
         ),
+        size: 60,
+        meta: {
+          isFixedColumn: true,
+        },
       },
       {
         id: 'firstName',
@@ -154,6 +172,7 @@ export default function TTable() {
     onRowSelectionChange: setRowSelection,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: setColumnFilters,
+    getRowId: (row) => row.userId, //required because row indexes will change
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -192,11 +211,6 @@ export default function TTable() {
     const colSizes: { [key: string]: number } = {}
     for (let i = 0; i < headers.length; i++) {
       const header = headers[i]!
-      if (header.column.id === 'select') {
-        colSizes[`--header-${header.id}-size`] = 50
-        colSizes[`--col-${header.column.id}-size`] = 50
-        continue
-      }
       colSizes[`--header-${header.id}-size`] = header.getSize()
       colSizes[`--col-${header.column.id}-size`] = header.column.getSize()
     }
@@ -276,16 +290,17 @@ export default function TTable() {
           </PopoverContent>
         </Popover>
       </div>
-
+      {/* Table container*/}
       <div className="border rounded-md">
-        <Table
-          style={{ ...columnSizeVars }}
-          width={table.getTotalSize()}
-          className="w-fit "
+        {/*  Table */}
+        <div
+          style={{ ...columnSizeVars, width: table.getTotalSize() }}
+          className="w-fit"
         >
-          <TableHeader>
+          {/* Table header */}
+          <div className='border-b'>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="flex w-fit">
+              <div key={headerGroup.id} className="flex w-fit">
                 {headerGroup.headers.map((header) => (
                   <SortableContext
                     key={header.id}
@@ -295,18 +310,23 @@ export default function TTable() {
                     <DraggableTableColHead header={header} />
                   </SortableContext>
                 ))}
-              </TableRow>
+              </div>
             ))}
-          </TableHeader>
+          </div>
           {table.getState().columnSizingInfo.isResizingColumn ? (
             <MemoriedDraggableTableBody
               table={table}
               columnOrder={columnOrder}
+              setData={setData}
             />
           ) : (
-            <DraggableTableBody table={table} columnOrder={columnOrder} />
+            <DraggableTableBody
+              table={table}
+              columnOrder={columnOrder}
+              setData={setData}
+            />
           )}
-        </Table>
+        </div>
       </div>
 
       <div className="h-2" />

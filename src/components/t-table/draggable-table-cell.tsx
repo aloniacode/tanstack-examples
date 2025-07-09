@@ -3,7 +3,6 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { flexRender, type Cell } from '@tanstack/react-table'
 import type { CSSProperties } from 'react'
-import { TableCell } from '../ui/table'
 
 const DragAlongCell = ({ cell }: { cell: Cell<Person, unknown> }) => {
   const { isDragging, setNodeRef, transform } = useSortable({
@@ -21,9 +20,9 @@ const DragAlongCell = ({ cell }: { cell: Cell<Person, unknown> }) => {
   }
 
   return (
-    <TableCell style={style} ref={setNodeRef} className="p-2 truncate">
+    <div style={style} ref={setNodeRef} className="p-2 truncate">
       {flexRender(cell.column.columnDef.cell, cell.getContext())}
-    </TableCell>
+    </div>
   )
 }
 
