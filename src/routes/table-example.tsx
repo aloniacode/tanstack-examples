@@ -6,7 +6,10 @@ export const Route = createFileRoute('/table-example')({
 
 function RouteComponent() {
   return (
-    <div className="flex flex-col justify-center items-center h-full gap-2 overflow-x-scroll">
+    <div className="flex relative flex-col justify-center items-center h-full gap-2 overflow-x-scroll">
+      <div className="absolute top-4 left-4 flex items-center gap-2">
+        Tanstack Table <code className="bg-accent px-1 rounded">v8.21.3</code>
+      </div>
       <div className="text-2xl font-semibold">
         🚀使用Tanstack Table、Shadcn/ui、DnD-kit实现一个功能较为齐全的表格
       </div>
