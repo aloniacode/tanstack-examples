@@ -29,6 +29,7 @@ import {
 import { Eye } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Button } from '../ui/button'
+import { Checkbox } from '../ui/checkbox'
 import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Select, SelectContent, SelectItem } from '../ui/select'
@@ -54,7 +55,7 @@ declare module '@tanstack/react-table' {
 
 export default function TTable() {
   const [data, setData] = useState(() => makeUserData(5000))
-
+  const [columnVisibility, setColumnVisibility] = useState({})
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
   const columns = useMemo<ColumnDef<Person, any>[]>(
@@ -147,9 +148,11 @@ export default function TTable() {
       columnFilters,
       columnOrder,
       rowSelection,
+      columnVisibility,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
+    onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -198,7 +201,11 @@ export default function TTable() {
       colSizes[`--col-${header.column.id}-size`] = header.column.getSize()
     }
     return colSizes
-  }, [table.getState().columnSizingInfo, table.getState().columnSizing])
+  }, [
+    table.getState().columnSizingInfo,
+    table.getState().columnSizing,
+    table.getState().columnVisibility,
+  ])
   const refreshData = () => setData((_old) => makeUserData(50_000)) //stress test
   // reorder columns after drag & drop
   const handleDragEnd = (event: DragEndEvent) => {
@@ -244,6 +251,30 @@ export default function TTable() {
         <Button className="cursor-pointer" onClick={refreshData}>
           Refresh
         </Button>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button>Columns Visibility</Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-2">
+            <div className="flex flex-col gap-1">
+              {table
+                .getAllLeafColumns()
+                .filter((col) => col.id !== 'select')
+                .map((column) => (
+                  <div key={column.id} className="flex items-center gap-2">
+                    <Checkbox
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    />
+                    <label className="text-sm font-medium">{column.id}</label>
+                  </div>
+                ))}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="border rounded-md">
