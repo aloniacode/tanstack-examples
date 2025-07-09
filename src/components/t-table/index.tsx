@@ -33,17 +33,22 @@ import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Select, SelectContent, SelectItem } from '../ui/select'
 import { Table, TableHeader, TableRow } from '../ui/table'
+import defaultColumn from './default-column'
 import {
   DraggableTableBody,
   MemoriedDraggableTableBody,
 } from './draggable-table-body'
 import DraggableTableColHead from './draggable-table-col-head'
 import IndeterminateCheckbox from './indeterminate-checkbox'
+import useSkipper from './use-skipper'
 
 declare module '@tanstack/react-table' {
   //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
     filterVariant?: 'text' | 'range' | 'select'
+  }
+  interface TableMeta<TData extends RowData> {
+    updateData: (rowIndex: number, columnId: string, value: unknown) => void
   }
 }
 
@@ -81,19 +86,16 @@ export default function TTable() {
       {
         id: 'firstName',
         accessorKey: 'firstName',
-        cell: (info) => info.getValue(),
       },
       {
         accessorFn: (row) => row.lastName,
         id: 'lastName',
-        cell: (info) => info.getValue(),
         header: () => <span>Last Name</span>,
       },
       {
         accessorFn: (row) => `${row.firstName} ${row.lastName}`,
         id: 'fullName',
         header: 'Full Name',
-        cell: (info) => info.getValue(),
       },
       {
         id: 'age',
@@ -133,14 +135,12 @@ export default function TTable() {
   const [columnOrder, setColumnOrder] = useState(() =>
     columns.map((col) => col.id!),
   )
+  const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper()
 
   const table = useReactTable({
     data,
     columns,
-    defaultColumn: {
-      minSize: 30,
-      maxSize: 800,
-    },
+    defaultColumn,
     columnResizeMode: 'onChange',
     filterFns: {},
     state: {
@@ -155,6 +155,25 @@ export default function TTable() {
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    autoResetPageIndex,
+    // Provide our updateData function to our table meta
+    meta: {
+      updateData: (rowIndex, columnId, value) => {
+        // Skip page index reset until after next rerender
+        skipAutoResetPageIndex()
+        setData((old) =>
+          old.map((row, index) => {
+            if (index === rowIndex) {
+              return {
+                ...old[rowIndex]!,
+                [columnId]: value,
+              }
+            }
+            return row
+          }),
+        )
+      },
+    },
     debugTable: true,
     debugHeaders: true,
     debugColumns: true,
