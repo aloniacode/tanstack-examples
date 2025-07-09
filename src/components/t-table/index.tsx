@@ -38,6 +38,7 @@ import {
   MemoriedDraggableTableBody,
 } from './draggable-table-body'
 import DraggableTableColHead from './draggable-table-col-head'
+import IndeterminateCheckbox from './indeterminate-checkbox'
 
 declare module '@tanstack/react-table' {
   //allows us to define custom properties for our columns
@@ -50,8 +51,33 @@ export default function TTable() {
   const [data, setData] = useState(() => makeUserData(5000))
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [rowSelection, setRowSelection] = useState({})
   const columns = useMemo<ColumnDef<Person, any>[]>(
     () => [
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <IndeterminateCheckbox
+            {...{
+              checked: table.getIsAllRowsSelected(),
+              indeterminate: table.getIsSomeRowsSelected(),
+              onChange: table.getToggleAllRowsSelectedHandler(),
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="px-1 flex justify-center">
+            <IndeterminateCheckbox
+              {...{
+                checked: row.getIsSelected(),
+                disabled: !row.getCanSelect(),
+                indeterminate: row.getIsSomeSelected(),
+                onChange: row.getToggleSelectedHandler(),
+              }}
+            />
+          </div>
+        ),
+      },
       {
         id: 'firstName',
         accessorKey: 'firstName',
@@ -112,7 +138,7 @@ export default function TTable() {
     data,
     columns,
     defaultColumn: {
-      minSize: 60,
+      minSize: 30,
       maxSize: 800,
     },
     columnResizeMode: 'onChange',
@@ -120,7 +146,10 @@ export default function TTable() {
     state: {
       columnFilters,
       columnOrder,
+      rowSelection,
     },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -141,6 +170,11 @@ export default function TTable() {
     const colSizes: { [key: string]: number } = {}
     for (let i = 0; i < headers.length; i++) {
       const header = headers[i]!
+      if (header.column.id === 'select') {
+        colSizes[`--header-${header.id}-size`] = 50
+        colSizes[`--col-${header.column.id}-size`] = 50
+        continue
+      }
       colSizes[`--header-${header.id}-size`] = header.getSize()
       colSizes[`--col-${header.column.id}-size`] = header.column.getSize()
     }
@@ -173,12 +207,13 @@ export default function TTable() {
               Table Data view
             </Button>
           </PopoverTrigger>
-          <PopoverContent className='w-[400px] p-0'>
+          <PopoverContent className="w-[400px] p-0">
             <pre className="bg-gray-300 w-full p-2 rounded h-[20rem] overflow-auto">
               {JSON.stringify(
                 {
                   columnFilters: table.getState().columnFilters,
                   columnSizing: table.getState().columnSizing,
+                  rowSelection: table.getState().rowSelection,
                 },
                 null,
                 2,
@@ -226,7 +261,9 @@ export default function TTable() {
 
       <div className="h-2" />
       <div className="flex items-center gap-2">
-        <span className='mr-2'>{table.getPrePaginationRowModel().rows.length} Rows</span>
+        <span className="mr-2">
+          {table.getPrePaginationRowModel().rows.length} Rows
+        </span>
         <Button
           onClick={() => table.setPageIndex(0)}
           disabled={!table.getCanPreviousPage()}

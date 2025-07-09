@@ -10,8 +10,8 @@ function RouteComponent() {
       <div className='text-xl font-semibold'>
         使用Tanstack Table、Shadcn/ui、DnD-kit实现一个功能较为齐全的表格
       </div>
-      <div>
-        本示例参考官网example进行结合，各个功能的具体实现请参考官网示例
+      <div className='w-1/2'>
+        本示例参考官网example进行结合，各个功能的具体实现请参考官网示例。目前支持列拖拽排序、列过滤、列宽调整、前端分页。
       </div>
       <TTable />
     </div>

@@ -22,6 +22,7 @@ const DraggableTableColHead = ({
     useSortable({
       id: header.id,
     })
+  const isSelectColumn = header.column.id === 'select'
   const style: CSSProperties = {
     opacity: isDragging ? 0.8 : 1,
     position: 'relative',
@@ -41,13 +42,16 @@ const DraggableTableColHead = ({
     >
       {header.isPlaceholder ? null : (
         <>
-          <button
-            {...attributes}
-            {...listeners}
-            className="cursor-grab active:cursor-grabbing mr-2"
-          >
-            <Grip size={16} />
-          </button>
+          {!isSelectColumn && (
+            <button
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing mr-2"
+            >
+              <Grip size={16} />
+            </button>
+          )}
+
           <div
             {...{
               className: header.column.getCanSort()
@@ -58,9 +62,11 @@ const DraggableTableColHead = ({
             className="flex-1 truncate text-center relative"
           >
             {flexRender(header.column.columnDef.header, header.getContext())}
-            <span>
-              {sortIconMap[header.column.getIsSorted() as string] ?? null}
-            </span>
+            {!isSelectColumn && (
+              <span>
+                {sortIconMap[header.column.getIsSorted() as string] ?? null}
+              </span>
+            )}
           </div>
           {header.column.getCanFilter() ? (
             <Popover>
@@ -74,17 +80,19 @@ const DraggableTableColHead = ({
           ) : null}
         </>
       )}
-      <div
-        {...{
-          onDoubleClick: () => header.column.resetSize(),
-          onMouseDown: header.getResizeHandler(),
-          onTouchStart: header.getResizeHandler(),
-          className: cn(
-            'z-20 h-2/3 ml-2 w-0.5 bg-gray-300 cursor-col-resize select-none touch-none',
-            header.column.getIsResizing() ? 'bg-purple-800' : '',
-          ),
-        }}
-      />
+      {!isSelectColumn && (
+        <div
+          {...{
+            onDoubleClick: () => header.column.resetSize(),
+            onMouseDown: header.getResizeHandler(),
+            onTouchStart: header.getResizeHandler(),
+            className: cn(
+              'z-20 h-2/3 ml-2 w-0.5 bg-gray-300 cursor-col-resize select-none touch-none',
+              header.column.getIsResizing() ? 'bg-purple-800' : '',
+            ),
+          }}
+        />
+      )}
     </TableHead>
   )
 }
