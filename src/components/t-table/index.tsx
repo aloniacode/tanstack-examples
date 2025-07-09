@@ -1,0 +1,295 @@
+import { makeUserData, type Person } from '@/mock/user'
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import { restrictToHorizontalAxis } from '@dnd-kit/modifiers'
+import {
+  arrayMove,
+  horizontalListSortingStrategy,
+  SortableContext,
+} from '@dnd-kit/sortable'
+import { SelectTrigger, SelectValue } from '@radix-ui/react-select'
+import {
+  type ColumnDef,
+  type ColumnFiltersState,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  type RowData,
+  useReactTable,
+} from '@tanstack/react-table'
+import { Eye } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { Select, SelectContent, SelectItem } from '../ui/select'
+import { Table, TableHeader, TableRow } from '../ui/table'
+import {
+  DraggableTableBody,
+  MemoriedDraggableTableBody,
+} from './draggable-table-body'
+import DraggableTableColHead from './draggable-table-col-head'
+
+declare module '@tanstack/react-table' {
+  //allows us to define custom properties for our columns
+  interface ColumnMeta<TData extends RowData, TValue> {
+    filterVariant?: 'text' | 'range' | 'select'
+  }
+}
+
+export default function TTable() {
+  const [data, setData] = useState(() => makeUserData(5000))
+
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const columns = useMemo<ColumnDef<Person, any>[]>(
+    () => [
+      {
+        id: 'firstName',
+        accessorKey: 'firstName',
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorFn: (row) => row.lastName,
+        id: 'lastName',
+        cell: (info) => info.getValue(),
+        header: () => <span>Last Name</span>,
+      },
+      {
+        accessorFn: (row) => `${row.firstName} ${row.lastName}`,
+        id: 'fullName',
+        header: 'Full Name',
+        cell: (info) => info.getValue(),
+      },
+      {
+        id: 'age',
+        accessorKey: 'age',
+        header: () => 'Age',
+        meta: {
+          filterVariant: 'range',
+        },
+      },
+      {
+        id: 'visits',
+        accessorKey: 'visits',
+        header: () => <span>Visits</span>,
+        meta: {
+          filterVariant: 'range',
+        },
+      },
+      {
+        id: 'status',
+        accessorKey: 'status',
+        header: 'Status',
+        meta: {
+          filterVariant: 'select',
+        },
+      },
+      {
+        id: 'progress',
+        accessorKey: 'progress',
+        header: 'Profile Progress',
+        meta: {
+          filterVariant: 'range',
+        },
+      },
+    ],
+    [],
+  )
+  const [columnOrder, setColumnOrder] = useState(() =>
+    columns.map((col) => col.id!),
+  )
+
+  const table = useReactTable({
+    data,
+    columns,
+    defaultColumn: {
+      minSize: 60,
+      maxSize: 800,
+    },
+    columnResizeMode: 'onChange',
+    filterFns: {},
+    state: {
+      columnFilters,
+      columnOrder,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    debugTable: true,
+    debugHeaders: true,
+    debugColumns: true,
+  })
+  const sensors = useSensors(
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {}),
+    useSensor(KeyboardSensor, {}),
+  )
+  // calculate all columns width
+  const columnSizeVars = useMemo(() => {
+    const headers = table.getFlatHeaders()
+    const colSizes: { [key: string]: number } = {}
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i]!
+      colSizes[`--header-${header.id}-size`] = header.getSize()
+      colSizes[`--col-${header.column.id}-size`] = header.column.getSize()
+    }
+    return colSizes
+  }, [table.getState().columnSizingInfo, table.getState().columnSizing])
+  const refreshData = () => setData((_old) => makeUserData(50_000)) //stress test
+  // reorder columns after drag & drop
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((columnOrder) => {
+        const oldIndex = columnOrder.indexOf(active.id as string)
+        const newIndex = columnOrder.indexOf(over.id as string)
+        return arrayMove(columnOrder, oldIndex, newIndex) //this is just a splice util
+      })
+    }
+  }
+  return (
+    <DndContext
+      collisionDetection={closestCenter}
+      modifiers={[restrictToHorizontalAxis]}
+      onDragEnd={handleDragEnd}
+      sensors={sensors}
+    >
+      <div className="flex gap-2">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button>
+              <Eye />
+              Table Data view
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className='w-[400px] p-0'>
+            <pre className="bg-gray-300 w-full p-2 rounded h-[20rem] overflow-auto">
+              {JSON.stringify(
+                {
+                  columnFilters: table.getState().columnFilters,
+                  columnSizing: table.getState().columnSizing,
+                },
+                null,
+                2,
+              )}
+            </pre>
+          </PopoverContent>
+        </Popover>
+
+        <Button className="cursor-pointer" onClick={refreshData}>
+          Refresh
+        </Button>
+      </div>
+
+      <div className="border rounded-md">
+        <Table
+          style={{ ...columnSizeVars }}
+          width={table.getTotalSize()}
+          className="w-fit "
+        >
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="flex w-fit">
+                {headerGroup.headers.map((header) => (
+                  <SortableContext
+                    key={header.id}
+                    items={columnOrder}
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    <DraggableTableColHead header={header} />
+                  </SortableContext>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          {table.getState().columnSizingInfo.isResizingColumn ? (
+            <MemoriedDraggableTableBody
+              table={table}
+              columnOrder={columnOrder}
+            />
+          ) : (
+            <DraggableTableBody table={table} columnOrder={columnOrder} />
+          )}
+        </Table>
+      </div>
+
+      <div className="h-2" />
+      <div className="flex items-center gap-2">
+        <span className='mr-2'>{table.getPrePaginationRowModel().rows.length} Rows</span>
+        <Button
+          onClick={() => table.setPageIndex(0)}
+          disabled={!table.getCanPreviousPage()}
+        >
+          {'<<'}
+        </Button>
+        <Button
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          {'<'}
+        </Button>
+        <Button
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          {'>'}
+        </Button>
+        <Button
+          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+          disabled={!table.getCanNextPage()}
+        >
+          {'>>'}
+        </Button>
+        <span className="flex items-center gap-1">
+          <div>Page</div>
+          <strong>
+            {table.getState().pagination.pageIndex + 1} of{' '}
+            {table.getPageCount()}
+          </strong>
+        </span>
+        <span className="flex items-center gap-1">
+          | Go to page:
+          <Input
+            type="number"
+            min="1"
+            max={table.getPageCount()}
+            defaultValue={table.getState().pagination.pageIndex + 1}
+            onChange={(e) => {
+              const page = e.target.value ? Number(e.target.value) - 1 : 0
+              table.setPageIndex(page)
+            }}
+            className="border p-1 rounded w-16"
+          />
+        </span>
+        <Select
+          value={table.getState().pagination.pageSize.toString()}
+          onValueChange={(value) => {
+            table.setPageSize(Number(value))
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={table.getState().pagination.pageSize} />
+          </SelectTrigger>
+          <SelectContent>
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <SelectItem key={pageSize} value={pageSize.toString()}>
+                Show {pageSize}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </DndContext>
+  )
+}
