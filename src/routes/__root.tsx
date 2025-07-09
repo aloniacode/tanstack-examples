@@ -10,6 +10,9 @@ export const Route = createRootRoute({
       <div className="flex-1 overflow-hidden">
         <Outlet />
       </div>
+      <footer className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white text-center py-2">
+        <p className="font-extrabold">Made with ❤️ | Alonia</p>
+      </footer>
       <TanStackRouterDevtools />
     </div>
   ),

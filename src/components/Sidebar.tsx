@@ -9,8 +9,8 @@ export default function Sidebar() {
           {({ isActive }) => (
             <div
               className={cn(
-                'px-2 font-bold hover:bg-gray-500 hover:text-white rounded-md',
-                isActive && 'bg-gray-500 text-white',
+                'p-2 font-bold hover:bg-foreground hover:text-white rounded-md',
+                isActive && 'bg-foreground text-white',
               )}
             >
               Home
@@ -21,8 +21,8 @@ export default function Sidebar() {
           {({ isActive }) => (
             <div
               className={cn(
-                'px-2 font-bold hover:bg-gray-500 hover:text-white rounded-md',
-                isActive && 'bg-gray-500 text-white',
+                'p-2 font-bold hover:bg-foreground hover:text-white rounded-md',
+                isActive && 'bg-foreground text-white',
               )}
             >
               Table Example
@@ -33,8 +33,8 @@ export default function Sidebar() {
           {({ isActive }) => (
             <div
               className={cn(
-                'px-2 font-bold hover:bg-gray-500 hover:text-white rounded-md',
-                isActive && 'bg-gray-500 text-white',
+                'p-2 font-bold hover:bg-foreground hover:text-white rounded-md',
+                isActive && 'bg-foreground text-white',
               )}
             >
               Form Example
