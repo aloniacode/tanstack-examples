@@ -6,9 +6,9 @@ import Sidebar from '../components/Sidebar'
 export const Route = createRootRoute({
   component: () => (
     <div className="h-full flex flex-col">
-      <div className='flex flex-1'>
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1">
           <Outlet />
         </div>
       </div>

@@ -13,7 +13,7 @@ import {
 export default function Sidebar() {
   const { i18n } = useTranslation()
   return (
-    <header className="p-2 flex flex-col gap-2 bg-secondary w-40 h-full border-r overflow-hidde">
+    <header className="p-2 flex flex-col gap-2 bg-secondary w-40 min-w-40 h-full border-r overflow-hidden">
       <nav className="flex-1 flex flex-col gap-2.5">
         <Link to="/">
           {({ isActive }) => (

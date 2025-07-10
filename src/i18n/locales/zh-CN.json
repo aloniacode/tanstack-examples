@@ -5,5 +5,10 @@
   "table-example": {
     "title": "使用Tanstack Table、Shadcn/ui、DnD-kit实现一个功能较为齐全的表格",
     "subtitle": "本示例参考官网example进行结合，各个功能的具体实现请参考官网示例。目前支持列拖拽排序、列过滤、列可见性调整、列宽调整、前端分页、可编辑单元格。"
+  },
+  "form-example": {
+    "title": "使用Tanstack Form、Shadcn/ui、Zod实现一个动态表单",
+    "refetch": "重新获取数据",
+    "data-title": "初始/提交的数据"
   }
 }

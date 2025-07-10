@@ -5,5 +5,10 @@
   "table-example": {
     "title": "Implement a relatively complete Table using Tanstack Table, Shadcn/ui and DnD-kit",
     "subtitle": "This example combines the official website examples, and the specific implementation of each function can be found in the official website examples. Currently supports column drag-and-drop sorting, column filtering, column visibility adjustment, column width adjustment, front-end pagination, and editable cells."
+  },
+  "form-example": {
+    "title": "Implement a dynamic form using Tanstack Form, Shadcn/ui and Zod",
+    "refetch": "Refetch Data",
+    "data-title": "Initial/Submitted Data"
   }
 }
