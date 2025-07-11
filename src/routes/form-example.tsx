@@ -16,7 +16,7 @@ function RouteComponent() {
       <div className="absolute top-4 left-4 flex items-center gap-2">
         Tanstack Form <code className="bg-accent px-1 rounded">v1.14.1</code>
       </div>
-      <div className="text-center text-2xl font-semibold mt-10">
+      <div className="text-center text-3xl font-extrabold mt-10">
         🚀{t('form-example.title')}
       </div>
       <div className="flex justify-center">

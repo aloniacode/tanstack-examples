@@ -12,7 +12,7 @@ function RouteComponent() {
       <div className="absolute top-4 left-4 flex items-center gap-2">
         Tanstack Table <code className="bg-accent px-1 rounded">v8.21.3</code>
       </div>
-      <div className="text-2xl font-semibold">🚀{t('table-example.title')}</div>
+      <div className="text-3xl font-extrabold max-w-1/2">🚀{t('table-example.title')}</div>
       <div className="w-1/2">{t('table-example.subtitle')}</div>
       <TTable />
     </div>
