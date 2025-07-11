@@ -9,3 +9,5 @@ This repository provides examples for developers who are new to Tanstack and are
 ✅ A multi-functional table component build with Tanstack Table.
 
 ✅ A dynamic form build with Tanstack Form.
+
+✅ Use Tanstack Virtual to render a large list of items.

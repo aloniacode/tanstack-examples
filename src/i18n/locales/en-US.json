@@ -10,5 +10,8 @@
     "title": "Implement a dynamic form using Tanstack Form, Shadcn/ui and Zod",
     "refetch": "Refetch Data",
     "data-title": "Initial/Submitted Data"
+  },
+  "virtual-list-example": {
+    "title": "Implement a virtualized list with dynamic width and height of elements and infinite scrolling using Tanstack Virtual, Tanstack Query, and Shadcn/ui"
   }
 }

@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VirtualListExampleRouteImport } from './routes/virtual-list-example'
 import { Route as TableExampleRouteImport } from './routes/table-example'
 import { Route as FormExampleRouteImport } from './routes/form-example'
 import { Route as IndexRouteImport } from './routes/index'
 
+const VirtualListExampleRoute = VirtualListExampleRouteImport.update({
+  id: '/virtual-list-example',
+  path: '/virtual-list-example',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TableExampleRoute = TableExampleRouteImport.update({
   id: '/table-example',
   path: '/table-example',
@@ -33,34 +39,50 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/form-example': typeof FormExampleRoute
   '/table-example': typeof TableExampleRoute
+  '/virtual-list-example': typeof VirtualListExampleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/form-example': typeof FormExampleRoute
   '/table-example': typeof TableExampleRoute
+  '/virtual-list-example': typeof VirtualListExampleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/form-example': typeof FormExampleRoute
   '/table-example': typeof TableExampleRoute
+  '/virtual-list-example': typeof VirtualListExampleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/form-example' | '/table-example'
+  fullPaths: '/' | '/form-example' | '/table-example' | '/virtual-list-example'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/form-example' | '/table-example'
-  id: '__root__' | '/' | '/form-example' | '/table-example'
+  to: '/' | '/form-example' | '/table-example' | '/virtual-list-example'
+  id:
+    | '__root__'
+    | '/'
+    | '/form-example'
+    | '/table-example'
+    | '/virtual-list-example'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FormExampleRoute: typeof FormExampleRoute
   TableExampleRoute: typeof TableExampleRoute
+  VirtualListExampleRoute: typeof VirtualListExampleRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/virtual-list-example': {
+      id: '/virtual-list-example'
+      path: '/virtual-list-example'
+      fullPath: '/virtual-list-example'
+      preLoaderRoute: typeof VirtualListExampleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/table-example': {
       id: '/table-example'
       path: '/table-example'
@@ -89,6 +111,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FormExampleRoute: FormExampleRoute,
   TableExampleRoute: TableExampleRoute,
+  VirtualListExampleRoute: VirtualListExampleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
