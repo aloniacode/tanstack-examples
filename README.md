@@ -8,4 +8,4 @@ This repository provides examples for developers who are new to Tanstack and are
 
 ✅ A multi-functional table component build with Tanstack Table.
 
-✅ A multi-functional form component build with Tanstack Form.
+✅ A dynamic form build with Tanstack Form.
