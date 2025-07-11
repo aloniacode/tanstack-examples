@@ -67,11 +67,12 @@ const TList: React.FC<Props> = ({
       <div className="border rounded-md">
         <div className="border-b p-2 flex items-center gap-4">
           <span>Data num: {allData.length}</span>
-
           {status === 'error' && (
-            <span className="text-red-500 truncate flex-1">{error.message}</span>
+            <span className="text-red-500 truncate flex-1">
+              {error.message}
+            </span>
           )}
-
+          {isFetchingNextPage && 'Loading next page data...'}
           {isFetching && (
             <RefreshCcw size={16} className="animate-spin ml-auto" />
           )}
@@ -97,7 +98,7 @@ const TList: React.FC<Props> = ({
                 return (
                   <div
                     key="loaderItem"
-                    className="text-center font-bold"
+                    className="text-center font-bold z-50"
                     style={{ height: '150px' }}
                   >
                     Loading more data...
@@ -146,7 +147,6 @@ const TList: React.FC<Props> = ({
           </div>
         </div>
       </div>
-      {isFetching && !isFetchingNextPage ? 'Background Updating...' : null}
     </>
   )
 }
