@@ -9,7 +9,7 @@
   "form-example": {
     "title": "使用Tanstack Form、Shadcn/ui、Zod实现一个动态表单",
     "refetch": "重新获取数据",
-    "data,-title": "初始/提交的数据"
+    "data-title": "初始/提交的数据"
   },
   "virtual-list-example": {
     "title": "使用Tanstack Virtual、Tanstack Query、Shadcn/ui实现一个元素动态宽高、无限滚动的虚拟化列表"
